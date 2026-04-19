@@ -97,6 +97,16 @@ At the time this repository was prepared:
 - the upstream ClawHub project documents `clawhub skill publish <path>`
 - the ClawHub web UI also supports signed-in publication
 
+CLI example:
+
+```bash
+npx clawhub@latest publish . \
+  --slug nvidia-cuda \
+  --name "NVIDIA CUDA" \
+  --version 0.1.0 \
+  --changelog "Initial public release"
+```
+
 Because community skill marketplaces can carry supply-chain risk, publish only reviewed, minimal, instruction-focused packages and inspect any scanner output before making a listing public.
 
 ## License
