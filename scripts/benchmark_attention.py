@@ -11,7 +11,14 @@ from typing import Any
 
 import torch
 import torch.nn.functional as F
-from torch.nn.attention import SDPBackend, sdpa_kernel
+from torch.nn.attention import (
+    SDPBackend,
+    activate_flash_attention_impl,
+    current_flash_attention_impl,
+    list_flash_attention_impls,
+    restore_flash_attention_impl,
+    sdpa_kernel,
+)
 
 
 BACKENDS = {
@@ -64,13 +71,33 @@ def main() -> int:
     parser.add_argument("--backend", choices=sorted(BACKENDS), default="auto")
     parser.add_argument("--compile", dest="use_compile", action="store_true")
     parser.add_argument("--causal", action="store_true")
+    parser.add_argument("--list-flash-impls", action="store_true", help="List available flash attention implementations and exit.")
+    parser.add_argument("--activate-flash-impl", default=None, help="Activate a registered flash attention implementation such as FA3 or FA4.")
+    parser.add_argument("--restore-default-flash", action="store_true", help="Restore the default FA2 implementation before benchmarking.")
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--iters", type=int, default=30)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
+    if args.list_flash_impls:
+        result = {
+            "available_flash_impls": list_flash_attention_impls(),
+            "current_flash_impl": current_flash_attention_impl(),
+        }
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0
+
     if not torch.cuda.is_available():
         raise SystemExit("CUDA is unavailable.")
+
+    activation_error = None
+    if args.restore_default_flash:
+        restore_flash_attention_impl()
+    if args.activate_flash_impl:
+        try:
+            activate_flash_attention_impl(args.activate_flash_impl)
+        except Exception as exc:  # pragma: no cover - runtime environment dependent
+            activation_error = repr(exc)
 
     dtype = DTYPES[args.dtype]
     shape = (args.batch, args.heads, args.seq, args.head_dim)
@@ -90,6 +117,9 @@ def main() -> int:
         "backend": args.backend,
         "dtype": args.dtype,
         "compile": args.use_compile,
+        "requested_flash_impl": args.activate_flash_impl,
+        "current_flash_impl": current_flash_attention_impl(),
+        "activation_error": activation_error,
         "batch": args.batch,
         "heads": args.heads,
         "seq": args.seq,

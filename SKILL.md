@@ -66,10 +66,11 @@ Use the included scripts when you need deterministic probes instead of ad hoc sn
 
 - `scripts/cuda_env_probe.py`: collect CUDA, PyTorch, device, and env facts
 - `scripts/check_training_stack.py`: scan Python code for high-cost anti-patterns
-- `scripts/benchmark_attention.py`: benchmark SDPA, flash, and cuDNN attention backends
+- `scripts/benchmark_attention.py`: benchmark SDPA, flash, cuDNN, and official flash-implementation activation paths
 - `scripts/training_step_benchmark.py`: benchmark a synthetic transformer training step with dtype, compile, and `.item()` logging knobs
 - `scripts/dataloader_benchmark.py`: benchmark DataLoader worker, pinning, and prefetch settings
 - `scripts/nccl_smoke.py`: run a minimal NCCL all-reduce smoke test under `torchrun`
+- `scripts/ddp_fsdp_smoke.py`: run a one-step DDP or FSDP training smoke test under `torchrun`
 
 Run the probe first, then benchmark or scan the real workload path.
 
@@ -89,6 +90,15 @@ Keep recommendation output scenario-based:
 - rack-scale training or reasoning
 
 Do not recommend by peak FLOPS alone. Weight memory, interconnect, thermals, deployment form, and software maturity.
+
+## Reviewing Triton, CUDA, and distributed code
+
+When the target includes Triton kernels, CUDA or C++ files, or distributed launcher code:
+
+- use `scripts/check_training_stack.py` across the whole tree, not just Python subfolders
+- treat Triton kernels as first-class review targets
+- verify distributed paths with `scripts/nccl_smoke.py` or `scripts/ddp_fsdp_smoke.py` before claiming they are healthy
+- benchmark flash attention implementation changes with `scripts/benchmark_attention.py --list-flash-impls` and explicit activation when available
 
 ## Non-negotiable code conventions
 

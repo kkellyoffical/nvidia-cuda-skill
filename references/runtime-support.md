@@ -31,9 +31,10 @@ Tested locally during repository development on:
 - `scripts/training_step_benchmark.py`
 - `scripts/dataloader_benchmark.py`
 - `scripts/nccl_smoke.py`
+- `scripts/ddp_fsdp_smoke.py`
   - require `torch`
   - require CUDA visibility
-  - `scripts/nccl_smoke.py` also requires `torchrun`-style distributed environment variables
+  - `scripts/nccl_smoke.py` and `scripts/ddp_fsdp_smoke.py` also require `torchrun`-style distributed environment variables
 
 ## Compatibility note
 

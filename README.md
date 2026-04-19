@@ -37,7 +37,7 @@ Those mistakes compound. This skill gives an agent a clear optimization order an
 
 ## Bundled tooling
 
-The `0.2.0` upgrade turns this repository into more than a text-only skill. It now includes reusable scripts:
+The repository now includes reusable scripts:
 
 - `scripts/cuda_env_probe.py`
 - `scripts/check_training_stack.py`
@@ -45,16 +45,20 @@ The `0.2.0` upgrade turns this repository into more than a text-only skill. It n
 - `scripts/training_step_benchmark.py`
 - `scripts/dataloader_benchmark.py`
 - `scripts/nccl_smoke.py`
+- `scripts/ddp_fsdp_smoke.py`
 
 Example commands:
 
 ```bash
 python scripts/cuda_env_probe.py --json
 python scripts/check_training_stack.py path/to/project
+python scripts/benchmark_attention.py --list-flash-impls
 python scripts/benchmark_attention.py --backend cudnn --dtype bf16 --seq 4096 --compile
 python scripts/training_step_benchmark.py --dtype bf16 --compile --iters 10
 python scripts/dataloader_benchmark.py --pin-memory --num-workers 8 --persistent-workers --prefetch-factor 4
-torchrun --nproc_per_node=2 scripts/nccl_smoke.py --json
+torchrun --standalone --nproc_per_node=2 scripts/nccl_smoke.py --json
+torchrun --standalone --nproc_per_node=2 scripts/ddp_fsdp_smoke.py --mode ddp --json
+torchrun --standalone --nproc_per_node=2 scripts/ddp_fsdp_smoke.py --mode fsdp --json
 ```
 
 ## Install locally
@@ -135,9 +139,9 @@ This repository now includes planning and environment examples:
 
 ## Release policy
 
-This repository uses semver. The current target release is `0.3.0`.
+This repository uses semver. The current target release is `0.4.0`.
 
-Version `0.3.0` establishes:
+Version `0.4.0` establishes:
 
 - the initial optimization doctrine
 - the anti-pattern blocklist
@@ -147,6 +151,7 @@ Version `0.3.0` establishes:
 - reusable probes and benchmark scripts for environment, attention, training-step, and dataloader analysis
 - current NVIDIA GPU purchase guidance with official references and sample planning configs
 - a basic CI smoke workflow and NCCL smoke-test helper
+- explicit DDP/FSDP smoke coverage and broader scanner coverage for Triton, CUDA, and C++ review surfaces
 
 ## ClawHub publication note
 
@@ -163,8 +168,8 @@ CLI example:
 npx clawhub@latest publish . \
   --slug nvidia-cuda \
   --name "NVIDIA CUDA" \
-  --version 0.3.0 \
-  --changelog "Add latest GPU recommendations and sample configs"
+  --version 0.4.0 \
+  --changelog "Add official FA/DDP/FSDP tooling and broader scanner coverage"
 ```
 
 Because community skill marketplaces can carry supply-chain risk, publish only reviewed, minimal, instruction-focused packages and inspect any scanner output before making a listing public.

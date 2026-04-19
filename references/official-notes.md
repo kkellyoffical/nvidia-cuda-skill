@@ -89,10 +89,14 @@ This file is reference material for the `nvidia-cuda` skill. Read it when you ne
 
 - PyTorch attention docs expose registration and activation for newer flash attention implementations via `register_flash_attention_impl()` and `activate_flash_attention_impl()`.
 - The documented implementation identifiers include `FA3` and `FA4`.
+- PyTorch attention docs also expose `list_flash_attention_impls()`, `current_flash_attention_impl()`, and `restore_flash_attention_impl()`.
+- `scaled_dot_product_attention` says it will automatically choose the most optimal implementation when possible unless you override backend choice.
 - PyTorch docs:
   - https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.register_flash_attention_impl.html
   - https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.activate_flash_attention_impl.html
   - https://docs.pytorch.org/docs/stable/nn.attention.html
+  - https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.sdpa_kernel.html
+  - https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 
 ### cuDNN and Transformer Engine attention on Hopper and Blackwell
 
@@ -141,3 +145,34 @@ This file is reference material for the `nvidia-cuda` skill. Read it when you ne
   - https://docs.nvidia.com/megatron-core/developer-guide/0.15.0/api-guide/dist_optimizer.html
   - https://docs.nvidia.com/megatron-core/developer-guide/0.16.0/user-guide/parallelism-guide.html
   - https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/custom_fsdp.html
+
+### DDP, FSDP, and torchrun smoke guidance
+
+- `torchrun` is the official launcher for single-node and multi-node distributed training and sets `LOCAL_RANK`, `RANK`, and related env vars for the script.
+- PyTorch docs explicitly recommend NCCL for best GPU training performance.
+- DDP docs state `DistributedDataParallel` is significantly faster than `torch.nn.DataParallel` for single-node multi-GPU data parallel training.
+- DDP docs require the process group to be initialized before constructing `DistributedDataParallel`.
+- DDP docs use `device_ids=[local_rank]` and `output_device=local_rank` for the one-GPU-per-process training pattern.
+- FSDP docs say to wrap the module first and create the optimizer after wrapping.
+- FSDP docs show the canonical wrapping pattern with `FullyShardedDataParallel`.
+- PyTorch docs:
+  - https://docs.pytorch.org/docs/stable/elastic/run.html
+  - https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html
+  - https://docs.pytorch.org/docs/stable/fsdp.html
+
+### Triton review guidance
+
+- Triton is the official language and compiler for productively writing custom DNN compute kernels on modern GPUs.
+- Triton tutorials explicitly recommend validating and benchmarking custom ops against native reference implementations.
+- Triton docs expose compiler hints and debug ops such as `multiple_of`, `max_contiguous`, `device_print`, and `device_assert`, which are useful review surfaces.
+- Triton debugging docs recommend `TRITON_INTERPRET=1` for CPU-interpreter debugging, with caveats around `bfloat16` and indirect memory access.
+- NVIDIA Compute Sanitizer is the official NVIDIA correctness tool for CUDA kernels and recommends running `memcheck` first before `racecheck` or `synccheck`.
+- Triton docs:
+  - https://triton-lang.org/main/index.html
+  - https://triton-lang.org/main/getting-started/tutorials/01-vector-add.html
+  - https://triton-lang.org/main/python-api/triton.language.html
+  - https://triton-lang.org/main/programming-guide/chapter-3/debugging.html
+  - https://triton-lang.org/main/python-api/generated/triton.testing.assert_close.html
+  - https://triton-lang.org/main/python-api/generated/triton.testing.do_bench.html
+- NVIDIA docs:
+  - https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html
