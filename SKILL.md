@@ -60,6 +60,18 @@ Before changing code, inspect the actual runtime surface:
 
 Do not jump to kernel rewrites before ruling out bad data movement, wrong dtype, graph breaks, or poor distributed setup.
 
+## Bundled tooling
+
+Use the included scripts when you need deterministic probes instead of ad hoc snippets:
+
+- `scripts/cuda_env_probe.py`: collect CUDA, PyTorch, device, and env facts
+- `scripts/check_training_stack.py`: scan Python code for high-cost anti-patterns
+- `scripts/benchmark_attention.py`: benchmark SDPA, flash, and cuDNN attention backends
+- `scripts/training_step_benchmark.py`: benchmark a synthetic transformer training step with dtype, compile, and `.item()` logging knobs
+- `scripts/dataloader_benchmark.py`: benchmark DataLoader worker, pinning, and prefetch settings
+
+Run the probe first, then benchmark or scan the real workload path.
+
 ## Non-negotiable code conventions
 
 ### High-cost anti-patterns to ban

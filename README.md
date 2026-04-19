@@ -30,6 +30,27 @@ Those mistakes compound. This skill gives an agent a clear optimization order an
 - [SKILL.md](SKILL.md): the main operational policy
 - [references/official-notes.md](references/official-notes.md): official PyTorch and NVIDIA references
 - [agents/openai.yaml](agents/openai.yaml): optional UI metadata for skill-aware clients
+- [scripts/](scripts/): reusable probes, scanners, and benchmarks
+
+## Bundled tooling
+
+The `0.2.0` upgrade turns this repository into more than a text-only skill. It now includes reusable scripts:
+
+- `scripts/cuda_env_probe.py`
+- `scripts/check_training_stack.py`
+- `scripts/benchmark_attention.py`
+- `scripts/training_step_benchmark.py`
+- `scripts/dataloader_benchmark.py`
+
+Example commands:
+
+```bash
+python scripts/cuda_env_probe.py --json
+python scripts/check_training_stack.py path/to/project
+python scripts/benchmark_attention.py --backend cudnn --dtype bf16 --seq 4096 --compile
+python scripts/training_step_benchmark.py --dtype bf16 --compile --iters 10
+python scripts/dataloader_benchmark.py --pin-memory --num-workers 8 --persistent-workers --prefetch-factor 4
+```
 
 ## Install locally
 
@@ -78,15 +99,16 @@ The primary software target is PyTorch on CUDA, with side coverage for:
 
 ## Release policy
 
-This repository uses semver. The first public release is `0.1.0`.
+This repository uses semver. The current target release is `0.2.0`.
 
-Version `0.1.0` establishes:
+Version `0.2.0` establishes:
 
 - the initial optimization doctrine
 - the anti-pattern blocklist
 - H100/H200/B200 attention and precision guidance
 - training and inference optimization ladders
 - ClawHub-ready repository packaging
+- reusable probes and benchmark scripts for environment, attention, training-step, and dataloader analysis
 
 ## ClawHub publication note
 

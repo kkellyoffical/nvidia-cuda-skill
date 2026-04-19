@@ -17,3 +17,18 @@ The format is based on Keep a Changelog and the project follows Semantic Version
 - hard anti-pattern rules for per-step `.item()`, untuned dataloaders, and premature checkpointing
 - official reference notes with PyTorch and NVIDIA documentation links
 - ClawHub-ready project layout with root `SKILL.md`
+
+## [0.2.0] - 2026-04-19
+
+### Added
+
+- `scripts/cuda_env_probe.py` for deterministic CUDA and PyTorch environment probing
+- `scripts/check_training_stack.py` for heuristic scanning of high-cost training anti-patterns
+- `scripts/benchmark_attention.py` for SDPA, flash, and cuDNN attention backend benchmarking
+- `scripts/training_step_benchmark.py` for synthetic transformer training-step benchmarking
+- `scripts/dataloader_benchmark.py` for worker, pinning, and prefetch throughput checks
+
+### Changed
+
+- upgraded the repository from a documentation-only skill package into a skill package with reusable tooling
+- documented bundled tooling in both `SKILL.md` and `README.md`
