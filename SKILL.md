@@ -69,8 +69,26 @@ Use the included scripts when you need deterministic probes instead of ad hoc sn
 - `scripts/benchmark_attention.py`: benchmark SDPA, flash, and cuDNN attention backends
 - `scripts/training_step_benchmark.py`: benchmark a synthetic transformer training step with dtype, compile, and `.item()` logging knobs
 - `scripts/dataloader_benchmark.py`: benchmark DataLoader worker, pinning, and prefetch settings
+- `scripts/nccl_smoke.py`: run a minimal NCCL all-reduce smoke test under `torchrun`
 
 Run the probe first, then benchmark or scan the real workload path.
+
+## Planning hardware purchases
+
+When the user wants current NVIDIA GPU recommendations, read:
+
+- [references/latest-gpu-recommendations-2026-04.md](references/latest-gpu-recommendations-2026-04.md)
+- the example configs under [examples/](examples)
+
+Keep recommendation output scenario-based:
+
+- cost-sensitive local prototyping
+- serious workstation development
+- enterprise server deployment
+- single-node training
+- rack-scale training or reasoning
+
+Do not recommend by peak FLOPS alone. Weight memory, interconnect, thermals, deployment form, and software maturity.
 
 ## Non-negotiable code conventions
 

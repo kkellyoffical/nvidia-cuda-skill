@@ -29,8 +29,11 @@ Those mistakes compound. This skill gives an agent a clear optimization order an
 
 - [SKILL.md](SKILL.md): the main operational policy
 - [references/official-notes.md](references/official-notes.md): official PyTorch and NVIDIA references
+- [references/latest-gpu-recommendations-2026-04.md](references/latest-gpu-recommendations-2026-04.md): latest GPU shortlist as of 2026-04-19
+- [references/runtime-support.md](references/runtime-support.md): tested and expected runtime surface
 - [agents/openai.yaml](agents/openai.yaml): optional UI metadata for skill-aware clients
 - [scripts/](scripts/): reusable probes, scanners, and benchmarks
+- [examples/](examples/): sample environment and planning configs
 
 ## Bundled tooling
 
@@ -41,6 +44,7 @@ The `0.2.0` upgrade turns this repository into more than a text-only skill. It n
 - `scripts/benchmark_attention.py`
 - `scripts/training_step_benchmark.py`
 - `scripts/dataloader_benchmark.py`
+- `scripts/nccl_smoke.py`
 
 Example commands:
 
@@ -50,6 +54,7 @@ python scripts/check_training_stack.py path/to/project
 python scripts/benchmark_attention.py --backend cudnn --dtype bf16 --seq 4096 --compile
 python scripts/training_step_benchmark.py --dtype bf16 --compile --iters 10
 python scripts/dataloader_benchmark.py --pin-memory --num-workers 8 --persistent-workers --prefetch-factor 4
+torchrun --nproc_per_node=2 scripts/nccl_smoke.py --json
 ```
 
 ## Install locally
@@ -97,11 +102,42 @@ The primary software target is PyTorch on CUDA, with side coverage for:
 - TensorRT-LLM
 - Megatron Core style large-model sharding
 
+## Latest GPU recommendations
+
+As of **2026-04-19**, the practical shortlist in this repository is:
+
+- **RTX 5090** for cost-sensitive local prototyping
+- **RTX PRO 6000 Blackwell Workstation Edition** for serious single-workstation AI development
+- **DGX Station** if you want a full deskside AI system rather than a loose card
+- **RTX PRO 6000 Blackwell Server Edition** for universal enterprise server deployment
+- **H200** for memory-first Hopper deployments
+- **DGX B300** for the newest top-end single-node training system
+- **DGX B200** as the current Blackwell step-down single-node training system
+- **GB200 NVL72** for rack-scale frontier training and trillion-parameter inference
+- **GB300 NVL72** as the newest rack-scale recommendation for AI reasoning and test-time scaling
+- **L4** for efficient low-power inference
+
+Detailed rationale and official links:
+
+- [latest-gpu-recommendations-2026-04.md](references/latest-gpu-recommendations-2026-04.md)
+
+## Sample configs
+
+This repository now includes planning and environment examples:
+
+- [workstation-rtx-pro6000-blackwell.env](examples/workstation-rtx-pro6000-blackwell.env)
+- [b200-8gpu-torchrun.env](examples/b200-8gpu-torchrun.env)
+- [dgx-b300-training.yaml](examples/dgx-b300-training.yaml)
+- [h200-long-context-training.yaml](examples/h200-long-context-training.yaml)
+- [gb300-serving.yaml](examples/gb300-serving.yaml)
+- [l4-edge-serving.yaml](examples/l4-edge-serving.yaml)
+- [runtime-support.md](references/runtime-support.md)
+
 ## Release policy
 
-This repository uses semver. The current target release is `0.2.0`.
+This repository uses semver. The current target release is `0.3.0`.
 
-Version `0.2.0` establishes:
+Version `0.3.0` establishes:
 
 - the initial optimization doctrine
 - the anti-pattern blocklist
@@ -109,6 +145,8 @@ Version `0.2.0` establishes:
 - training and inference optimization ladders
 - ClawHub-ready repository packaging
 - reusable probes and benchmark scripts for environment, attention, training-step, and dataloader analysis
+- current NVIDIA GPU purchase guidance with official references and sample planning configs
+- a basic CI smoke workflow and NCCL smoke-test helper
 
 ## ClawHub publication note
 
@@ -125,8 +163,8 @@ CLI example:
 npx clawhub@latest publish . \
   --slug nvidia-cuda \
   --name "NVIDIA CUDA" \
-  --version 0.1.0 \
-  --changelog "Initial public release"
+  --version 0.3.0 \
+  --changelog "Add latest GPU recommendations and sample configs"
 ```
 
 Because community skill marketplaces can carry supply-chain risk, publish only reviewed, minimal, instruction-focused packages and inspect any scanner output before making a listing public.
